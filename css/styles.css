@@ -1,0 +1,428 @@
+/* Sheet Calendar — simple, readable UI */
+
+:root {
+  --bg: #f6f7f9;
+  --panel: #fff;
+  --text: #1a1d26;
+  --muted: #5c6370;
+  --border: #d8dce3;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --weekend-bg: #f0f4ff;
+  --notes-bg: #fafbfc;
+  --cal-frame: #184457;
+  --cal-title-bg: #6fa9c9;
+  --cal-header-bg: #2f7aa7;
+  --cal-weekband-a: #a7dff0;
+  --cal-weekband-b: #86d1e9;
+  --cal-weekend-fg: #ffffff;
+  --cal-weekend-bg-strong: #1f5f85;
+  /* Weekend column: darker header (Sat/Sun label) vs lighter date cell (number) */
+  --cal-weekend-header-bg: #1f5f85;
+  --cal-weekend-date-bg: #b9dde8;
+  --cal-weekend-date-fg: #0f172a;
+  --radius: 10px;
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  margin: 0;
+  color: var(--muted);
+  max-width: 52ch;
+}
+
+.layout {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 880px) {
+  .layout {
+    grid-template-columns: 320px 1fr;
+    align-items: start;
+  }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem 1.35rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.subhead {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.field-row {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.field-row label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.field-row input[type='text'],
+.field-row input[type='number'],
+.field-row select {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.field-row input:focus,
+.field-row select:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 1px;
+}
+
+.checkbox-row {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.checkbox-row input {
+  margin-top: 0.2rem;
+}
+
+.checkbox-row label {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.btn-primary {
+  appearance: none;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #0b3b57;
+}
+
+.btn-secondary:hover {
+  background: #083244;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.status {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.preview-wrap {
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.preview-html {
+  padding: 0.5rem 0;
+}
+
+/* Match HTML export: 756px total (1.5× prior 504), 7 equal columns */
+.cal-preview-wrap {
+  width: 756px;
+  max-width: 100%;
+  border: 2px solid var(--cal-frame);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.cal-preview-table.cal-calendar-only {
+  width: 756px;
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 18px;
+  border: 0;
+}
+
+.cal-preview-table.cal-calendar-only th,
+.cal-preview-table.cal-calendar-only td {
+  border: 0;
+  padding: 0.35rem 0.25rem;
+  text-align: center;
+  vertical-align: middle;
+  min-width: 0;
+  height: auto;
+  min-height: 2rem;
+}
+
+.cal-title {
+  text-align: center;
+  font-weight: 650;
+  font-size: 24px;
+  line-height: 1.2;
+  padding: 0.5rem 0.35rem !important;
+  background: var(--cal-title-bg);
+  color: #ffffff;
+  border: 0;
+}
+
+.cal-preview-table.cal-calendar-only th {
+  background: var(--cal-header-bg);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Weekend day name row (Sat / Sun) — darker band */
+.cal-preview-table.cal-calendar-only th.cal-weekend-header {
+  background: var(--cal-weekend-header-bg) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* Weekend date numbers — lighter than header so it’s visually distinct */
+.cal-preview-table.cal-calendar-only td.cal-weekend-date {
+  background: var(--cal-weekend-date-bg) !important;
+  color: var(--cal-weekend-date-fg) !important;
+  font-weight: 800 !important;
+}
+
+.cal-empty {
+  background: transparent !important;
+}
+
+.cal-week-row.cal-band-a td:not(.cal-empty):not(.cal-weekend-date) {
+  background: var(--cal-weekband-a);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.cal-week-row.cal-band-b td:not(.cal-empty):not(.cal-weekend-date) {
+  background: var(--cal-weekband-b);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.cal-notes-row .cal-notes-cell {
+  background: #ffffff;
+  font-size: 12px;
+  height: 1.5rem;
+  border: 0;
+}
+
+.cal-notes-row.cal-band-a td.cal-notes-cell {
+  background: #ffffff;
+}
+
+.cal-notes-row.cal-band-b td.cal-notes-cell {
+  background: #ffffff;
+}
+
+/* Goals: separate table + wrapper so title never stretches calendar columns */
+.cal-goals-wrap {
+  width: 100%;
+  max-width: 756px;
+  padding: 0.65rem 0.5rem 0.75rem;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.06) 0%, transparent 55%);
+}
+
+.cal-goals-section-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  border: 0;
+  font-size: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.cal-goals-section-table td {
+  border: 0;
+  padding: 0.25rem 0.35rem;
+  vertical-align: middle;
+}
+
+.cal-goals-spacer {
+  height: 0;
+  padding: 0 !important;
+  font-size: 12px;
+  background: transparent !important;
+}
+
+.cal-goals-title-cell {
+  text-align: left;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.6rem 0.75rem !important;
+  background: linear-gradient(
+    105deg,
+    var(--cal-header-bg) 0%,
+    var(--cal-title-bg) 55%,
+    var(--cal-weekband-b) 100%
+  );
+  color: #ffffff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.cal-goals-title-label {
+  display: inline-block;
+  margin-right: 0.45rem;
+  opacity: 0.95;
+  font-size: 0.95em;
+}
+
+.cal-goals-topic-head {
+  text-align: left;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.7rem !important;
+  background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+  color: var(--text);
+  border-left: 4px solid var(--cal-header-bg);
+}
+
+.cal-goals-topic-head.cal-goals-topic-divider {
+  border-top: 1px solid rgba(148, 163, 184, 0.5);
+  padding-top: 0.65rem !important;
+}
+
+.cal-goals-data-row .cal-goals-body-cell {
+  background: #ffffff;
+}
+
+.cal-goals-body-cell {
+  font-size: 12px;
+  min-height: 1.35rem;
+  color: var(--text);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tab {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.tab.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.tab-panel.hidden {
+  display: none;
+}
+
+.output-block {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: #0f1419;
+  color: #e6edf3;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 280px;
+}
+
+.foot {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+kbd {
+  font: inherit;
+  font-size: 0.85em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: #fff;
+}

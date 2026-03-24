@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sheet Calendar — copy & paste for Google Sheets</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <h1>Sheet Calendar</h1>
+        <p class="lede">
+          Pick a month and year. Copy tab-separated output and paste into Google Sheets — no sign-in, no
+          APIs, everything runs in your browser.
+        </p>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls" aria-labelledby="controls-heading">
+          <h2 id="controls-heading">Calendar options</h2>
+
+          <div class="field-row">
+            <label for="field-month">Month</label>
+            <select id="field-month" name="month">
+              <option value="0">January</option>
+              <option value="1">February</option>
+              <option value="2">March</option>
+              <option value="3">April</option>
+              <option value="4">May</option>
+              <option value="5">June</option>
+              <option value="6">July</option>
+              <option value="7">August</option>
+              <option value="8">September</option>
+              <option value="9">October</option>
+              <option value="10">November</option>
+              <option value="11">December</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <label for="field-year">Year</label>
+            <input id="field-year" name="year" type="number" min="1900" max="2100" step="1" />
+          </div>
+
+          <div class="field-row">
+            <label for="field-week-start">Week starts on</label>
+            <select id="field-week-start" name="weekStart">
+              <option value="monday" selected>Monday</option>
+              <option value="sunday">Sunday</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <label for="field-title">Title text</label>
+            <input
+              id="field-title"
+              name="title"
+              type="text"
+              placeholder="Leave blank for “Month Year”"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-row">
+            <label for="field-layout">Layout</label>
+            <select id="field-layout" name="layout">
+              <option value="event" selected>Event planning (room for notes)</option>
+              <option value="grid">Month grid (compact)</option>
+            </select>
+          </div>
+
+          <div class="field-row checkbox-row">
+            <input id="field-notes-row" type="checkbox" name="notesRow" checked />
+            <label for="field-notes-row">Add blank rows under each week for notes (event layout)</label>
+          </div>
+
+          <div class="field-row">
+            <label for="field-notes-count">Blank rows per week</label>
+            <input
+              id="field-notes-count"
+              type="number"
+              min="0"
+              max="10"
+              step="1"
+              value="1"
+              disabled
+            />
+          </div>
+
+          <div class="field-row checkbox-row">
+            <input id="field-weekend-style" type="checkbox" name="weekendStyle" checked />
+            <label for="field-weekend-style">Style weekends (markers below)</label>
+          </div>
+
+          <div class="field-row">
+            <label for="field-weekend-markers">Weekend markers</label>
+            <select id="field-weekend-markers" name="weekendMarkers">
+              <option value="none">None</option>
+              <option value="emoji">Emoji (Sun / Sat)</option>
+              <option value="label">Text (Sun) / (Sat)</option>
+            </select>
+          </div>
+
+          <div class="field-row checkbox-row">
+            <input id="field-goals" type="checkbox" name="goals" />
+            <label for="field-goals">Add section below calendar (goals, tasks, optional topic)</label>
+          </div>
+
+          <div class="field-row">
+            <label for="field-goals-banner">Section banner (optional)</label>
+            <input
+              id="field-goals-banner"
+              name="goalsBanner"
+              type="text"
+              placeholder="e.g. Monthly focus"
+              disabled
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-row">
+            <label for="field-goals-label-goals">Goals heading</label>
+            <input id="field-goals-label-goals" type="text" value="Goals" disabled autocomplete="off" />
+          </div>
+
+          <div class="field-row">
+            <label for="field-goals-label-tasks">Tasks heading</label>
+            <input id="field-goals-label-tasks" type="text" value="Tasks" disabled autocomplete="off" />
+          </div>
+
+          <div class="field-row">
+            <label for="field-goals-label-other">Extra topics (optional)</label>
+            <input
+              id="field-goals-label-other"
+              name="goalsOther"
+              type="text"
+              placeholder="Use ; for several sections (e.g. Reminders; Habits)"
+              disabled
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-row">
+            <label for="field-goals-blank-rows">Blank rows per topic</label>
+            <input
+              id="field-goals-blank-rows"
+              type="number"
+              min="1"
+              max="8"
+              step="1"
+              value="3"
+              disabled
+            />
+          </div>
+
+          <div class="field-row">
+            <label for="field-theme-color">Calendar color</label>
+            <input id="field-theme-color" type="color" value="#2f7aa7" />
+          </div>
+        </section>
+
+        <section class="panel output" aria-labelledby="output-heading">
+          <h2 id="output-heading">Preview &amp; export</h2>
+
+          <div class="toolbar">
+            <button type="button" id="btn-copy-tsv" class="btn-primary">
+              Copy for Google Sheets (TSV)
+            </button>
+            <button type="button" id="btn-copy-html" class="btn-primary btn-secondary">
+              Copy with colors (HTML)
+            </button>
+            <span id="status-line" class="status" role="status"></span>
+          </div>
+
+          <div class="preview-wrap">
+            <h3 class="subhead">Visual preview</h3>
+            <div id="preview-html" class="preview-html" aria-live="polite"></div>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Export format">
+            <button type="button" class="tab active" role="tab" aria-selected="true" data-tab="tsv">
+              TSV (Sheets)
+            </button>
+            <button type="button" class="tab" role="tab" aria-selected="false" data-tab="plain">
+              Plain text
+            </button>
+          </div>
+
+          <div id="panel-tsv" class="tab-panel" role="tabpanel">
+            <pre id="output-tsv" class="output-block" spellcheck="false"></pre>
+          </div>
+          <div id="panel-plain" class="tab-panel hidden" role="tabpanel" hidden>
+            <pre id="output-plain" class="output-block" spellcheck="false"></pre>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        <p>No data leaves your device. Paste into Sheets with <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>⌘</kbd>+<kbd>V</kbd>).</p>
+      </footer>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
