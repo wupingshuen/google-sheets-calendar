@@ -196,16 +196,13 @@ export function interleaveNotesRowsAfterWeeks(rows, notesRowsPerWeek = 1) {
 
 /**
  * @typedef {{
- *   banner?: string,
- *   goalsLabel?: string,
- *   tasksLabel?: string,
  *   otherLabel?: string,
  *   blankRowsPerTopic?: number,
  * }} GoalsConfig
  */
 
 /**
- * Split "Other" field into multiple section titles (`Reminders; Habits` → two sections).
+ * Split the topics field into multiple section titles (`Reminders; Habits` → two sections).
  * @param {string} s
  * @returns {string[]}
  */
@@ -218,25 +215,24 @@ export function parseSemicolonTopics(s) {
 
 /**
  * Normalize goals UI options for export + preview.
- * `otherLabel` may list several sections separated by `;` (e.g. `Reminders; Habits`).
+ * Only headings from `otherLabel` (`;`-separated); empty string → no rows / no HTML block.
  * @param {GoalsConfig} raw
  */
 export function normalizeGoalsConfig(raw) {
   const blankRowsPerTopic = Math.max(1, Math.min(8, Number(raw.blankRowsPerTopic) || 3));
-  const goalsLabel = String(raw.goalsLabel || 'Goals').trim() || 'Goals';
-  const tasksLabel = String(raw.tasksLabel || 'Tasks').trim() || 'Tasks';
   const otherTopics = parseSemicolonTopics(raw.otherLabel);
-  const banner = String(raw.banner || '').trim();
-  return { banner, goalsLabel, tasksLabel, otherTopics, blankRowsPerTopic };
+  return { otherTopics, blankRowsPerTopic };
 }
 
 /**
- * TSV rows for goals / tasks / optional other topic (7 columns). Leading spacer separates from calendar.
+ * TSV rows for user-defined topic headings (7 columns). Leading spacer separates from calendar.
  * @param {GoalsConfig} raw
  * @returns {string[][]}
  */
 export function buildGoalsStructuredRows(raw) {
   const c = normalizeGoalsConfig(raw);
+  if (c.otherTopics.length === 0) return [];
+
   const headerRow = (text) => {
     const r = Array(7).fill('');
     r[0] = text;
@@ -245,18 +241,11 @@ export function buildGoalsStructuredRows(raw) {
   const blank = () => Array(7).fill('');
   const out = [blank()];
 
-  if (c.banner) {
-    out.push(headerRow(c.banner));
-    out.push(blank());
-  }
-
   const addTopic = (label) => {
     out.push(headerRow(label));
     for (let i = 0; i < c.blankRowsPerTopic; i++) out.push(blank());
   };
 
-  addTopic(c.goalsLabel);
-  addTopic(c.tasksLabel);
   for (const label of c.otherTopics) addTopic(label);
 
   return out;
@@ -278,9 +267,6 @@ export function buildGoalsStructuredRows(raw) {
  *   layout: LayoutMode,
  *   notesRowsPerWeek: number,
  *   includeGoalsSection: boolean,
- *   goalsBanner?: string,
- *   goalsGoalsLabel?: string,
- *   goalsTasksLabel?: string,
  *   goalsOtherLabel?: string,
  *   goalsBlankRowsPerTopic?: number,
  * }} options
@@ -295,9 +281,6 @@ export function buildExportRows(year, monthIndex, options) {
     rows = [
       ...rows,
       ...buildGoalsStructuredRows({
-        banner: options.goalsBanner,
-        goalsLabel: options.goalsGoalsLabel,
-        tasksLabel: options.goalsTasksLabel,
         otherLabel: options.goalsOtherLabel,
         blankRowsPerTopic: options.goalsBlankRowsPerTopic,
       }),
@@ -392,19 +375,17 @@ export function rowsToHtmlTable(rows) {
 }
 
 /**
- * Goals block (separate table). Banner + Goals + Tasks + optional Other.
+ * Topics block (separate table). One block per heading in `otherLabel` (`;`-separated).
  * @param {GoalsConfig | null | undefined} goalsConfig
  */
 function buildGoalsSectionHtml(goalsConfig) {
   if (!goalsConfig) return '';
   const c = normalizeGoalsConfig(goalsConfig);
+  if (c.otherTopics.length === 0) return '';
   let h = '<div class="cal-goals-wrap">\n';
   h += '<table class="cal-goals-section-table" cellspacing="0" cellpadding="0">\n';
   h += `  ${colgroupSevenColumnsPx()}`;
   h += '  <tbody>\n';
-  if (c.banner) {
-    h += `  <tr><td colspan="7" class="cal-goals-title-cell"><span class="cal-goals-title-label" aria-hidden="true">✦</span>${escapeHtml(c.banner)}</td></tr>\n`;
-  }
   let topicIndex = 0;
   const addTopic = (label) => {
     const divider = topicIndex > 0 ? ' cal-goals-topic-divider' : '';
@@ -418,8 +399,6 @@ function buildGoalsSectionHtml(goalsConfig) {
       h += '  </tr>\n';
     }
   };
-  addTopic(c.goalsLabel);
-  addTopic(c.tasksLabel);
   for (const label of c.otherTopics) addTopic(label);
   h += '  </tbody>\n</table>\n</div>\n';
   return h;
@@ -570,35 +549,31 @@ export function modelToHtmlTableInline(model, extra = {}) {
 
   if (goalsConfig) {
     const gc = normalizeGoalsConfig(goalsConfig);
-    const goalsBannerGrad = `linear-gradient(105deg, ${headerBg} 0%, ${titleBg} 55%, ${bandB} 100%)`;
-    const topicHeadBase = `text-align:left;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;${goalsFont}color:#0f172a;background:linear-gradient(90deg,#f8fafc 0%,#ffffff 100%);border-left:4px solid ${headerBg};`;
+    if (gc.otherTopics.length > 0) {
+      const topicHeadBase = `text-align:left;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;${goalsFont}color:#0f172a;background:linear-gradient(90deg,#f8fafc 0%,#ffffff 100%);border-left:4px solid ${headerBg};`;
 
-    html += `<div style="padding:8px 6px 10px;box-sizing:border-box;width:${tw}px;max-width:100%;background:linear-gradient(180deg,rgba(15,23,42,0.06),transparent 55%);">\n`;
-    html += `<table cellpadding="0" cellspacing="0" width="${tw}" style="border-collapse:separate;border-spacing:0;border:0;width:${tw}px;max-width:100%;table-layout:fixed;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,0.08);">\n`;
-    html += colgroup;
-    let topicIndex = 0;
-    if (gc.banner) {
-      html += `  <tr><td colspan="7" style="background-image:${goalsBannerGrad};background-color:${headerBg};color:#ffffff;font-weight:800;text-align:left;letter-spacing:0.06em;text-transform:uppercase;padding:10px 12px;${goalsFont}text-shadow:0 1px 0 rgba(0,0,0,0.12);"><span style="opacity:0.95;margin-right:6px" aria-hidden="true">✦</span>${escapeHtml(gc.banner)}</td></tr>\n`;
-    }
-    const addTopicInline = (label) => {
-      const top =
-        topicIndex > 0
-          ? 'border-top:1px solid #cbd5e1;padding:10px 10px 8px 10px;'
-          : 'padding:8px 10px;';
-      topicIndex++;
-      html += `  <tr><td colspan="7" style="${top}${topicHeadBase}">${escapeHtml(label)}</td></tr>\n`;
-      for (let i = 0; i < gc.blankRowsPerTopic; i++) {
-        html += '  <tr>\n';
-        for (let col = 0; col < 7; col++) {
-          html += `    <td bgcolor="#ffffff" style="background-color:#ffffff;color:#0f172a;${cellBase}${goalsFont}">&nbsp;</td>\n`;
+      html += `<div style="padding:8px 6px 10px;box-sizing:border-box;width:${tw}px;max-width:100%;background:linear-gradient(180deg,rgba(15,23,42,0.06),transparent 55%);">\n`;
+      html += `<table cellpadding="0" cellspacing="0" width="${tw}" style="border-collapse:separate;border-spacing:0;border:0;width:${tw}px;max-width:100%;table-layout:fixed;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,0.08);">\n`;
+      html += colgroup;
+      let topicIndex = 0;
+      const addTopicInline = (label) => {
+        const top =
+          topicIndex > 0
+            ? 'border-top:1px solid #cbd5e1;padding:10px 10px 8px 10px;'
+            : 'padding:8px 10px;';
+        topicIndex++;
+        html += `  <tr><td colspan="7" style="${top}${topicHeadBase}">${escapeHtml(label)}</td></tr>\n`;
+        for (let i = 0; i < gc.blankRowsPerTopic; i++) {
+          html += '  <tr>\n';
+          for (let col = 0; col < 7; col++) {
+            html += `    <td bgcolor="#ffffff" style="background-color:#ffffff;color:#0f172a;${cellBase}${goalsFont}">&nbsp;</td>\n`;
+          }
+          html += '  </tr>\n';
         }
-        html += '  </tr>\n';
-      }
-    };
-    addTopicInline(gc.goalsLabel);
-    addTopicInline(gc.tasksLabel);
-    for (const label of gc.otherTopics) addTopicInline(label);
-    html += '</table>\n</div>\n';
+      };
+      for (const label of gc.otherTopics) addTopicInline(label);
+      html += '</table>\n</div>\n';
+    }
   }
 
   html += '</div>';

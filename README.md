@@ -60,7 +60,7 @@ Sheets support for HTML-in-paste formatting varies, but this usually gives bette
 | Style weekends | When on, applies emoji or text markers for Sat/Sun |
 | Weekend markers | None, emoji, or `(Sat)` / `(Sun)` labels |
 | Calendar color | Changes the visual preview theme colors (TSV output is unchanged) |
-| Goals section | **Goals**, **Tasks**, then optional extra topics (each with a heading + blank rows). In “Extra topics”, separate names with **`;`** for multiple sections (e.g. `Reminders; Habits`). Optional **banner** row on top |
+| Topics section | When enabled, adds only the topic headings you enter (each with blank rows). Separate names with **`;`** for multiple sections (e.g. `Reminders; Habits`). Nothing is added until you type at least one topic |
 
 ## Extending
 

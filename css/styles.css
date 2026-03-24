@@ -314,30 +314,6 @@ body {
   background: transparent !important;
 }
 
-.cal-goals-title-cell {
-  text-align: left;
-  font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.6rem 0.75rem !important;
-  background: linear-gradient(
-    105deg,
-    var(--cal-header-bg) 0%,
-    var(--cal-title-bg) 55%,
-    var(--cal-weekband-b) 100%
-  );
-  color: #ffffff;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
-}
-
-.cal-goals-title-label {
-  display: inline-block;
-  margin-right: 0.45rem;
-  opacity: 0.95;
-  font-size: 0.95em;
-}
-
 .cal-goals-topic-head {
   text-align: left;
   font-weight: 800;

@@ -27,9 +27,6 @@ function readOptions() {
   const includeWeekendStyling = $('field-weekend-style').checked;
   const weekendMarkers = /** @type {'none' | 'emoji' | 'label'} */ ($('field-weekend-markers').value);
   const includeGoalsSection = $('field-goals').checked;
-  const goalsBanner = $('field-goals-banner').value;
-  const goalsGoalsLabel = $('field-goals-label-goals').value;
-  const goalsTasksLabel = $('field-goals-label-tasks').value;
   const goalsOtherLabel = $('field-goals-label-other').value;
   const goalsBlankRowsPerTopic = Number($('field-goals-blank-rows').value);
   const themeColor = ($('field-theme-color')?.value || '').trim();
@@ -44,9 +41,6 @@ function readOptions() {
     includeWeekendStyling,
     weekendMarkers,
     includeGoalsSection,
-    goalsBanner,
-    goalsGoalsLabel,
-    goalsTasksLabel,
     goalsOtherLabel,
     goalsBlankRowsPerTopic,
     themeColor,
@@ -77,9 +71,6 @@ function render() {
     layout: o.layout,
     notesRowsPerWeek: o.notesRowsPerWeek,
     includeGoalsSection: o.includeGoalsSection,
-    goalsBanner: o.goalsBanner,
-    goalsGoalsLabel: o.goalsGoalsLabel,
-    goalsTasksLabel: o.goalsTasksLabel,
     goalsOtherLabel: o.goalsOtherLabel,
     goalsBlankRowsPerTopic: o.goalsBlankRowsPerTopic,
   };
@@ -89,9 +80,6 @@ function render() {
   const notesForPreviewCount = o.layout === 'event' ? o.notesRowsPerWeek : 0;
   const goalsConfig = o.includeGoalsSection
     ? {
-        banner: o.goalsBanner,
-        goalsLabel: o.goalsGoalsLabel,
-        tasksLabel: o.goalsTasksLabel,
         otherLabel: o.goalsOtherLabel,
         blankRowsPerTopic: o.goalsBlankRowsPerTopic,
       }
@@ -135,9 +123,6 @@ async function copyHtmlWithColors() {
     layout: o.layout,
     notesRowsPerWeek: o.notesRowsPerWeek,
     includeGoalsSection: o.includeGoalsSection,
-    goalsBanner: o.goalsBanner,
-    goalsGoalsLabel: o.goalsGoalsLabel,
-    goalsTasksLabel: o.goalsTasksLabel,
     goalsOtherLabel: o.goalsOtherLabel,
     goalsBlankRowsPerTopic: o.goalsBlankRowsPerTopic,
   };
@@ -146,9 +131,6 @@ async function copyHtmlWithColors() {
   const notesForExportCount = o.layout === 'event' ? o.notesRowsPerWeek : 0;
   const goalsConfig = o.includeGoalsSection
     ? {
-        banner: o.goalsBanner,
-        goalsLabel: o.goalsGoalsLabel,
-        tasksLabel: o.goalsTasksLabel,
         otherLabel: o.goalsOtherLabel,
         blankRowsPerTopic: o.goalsBlankRowsPerTopic,
       }
@@ -206,13 +188,7 @@ function syncNotesControls() {
 
 function syncGoalsControls() {
   const on = $('field-goals').checked;
-  for (const id of [
-    'field-goals-banner',
-    'field-goals-label-goals',
-    'field-goals-label-tasks',
-    'field-goals-label-other',
-    'field-goals-blank-rows',
-  ]) {
+  for (const id of ['field-goals-label-other', 'field-goals-blank-rows']) {
     $(id).disabled = !on;
   }
 }
@@ -252,9 +228,6 @@ function wire() {
     'field-weekend-style',
     'field-weekend-markers',
     'field-goals',
-    'field-goals-banner',
-    'field-goals-label-goals',
-    'field-goals-label-tasks',
     'field-goals-label-other',
     'field-goals-blank-rows',
     'field-theme-color',
