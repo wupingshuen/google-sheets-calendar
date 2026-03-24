@@ -389,8 +389,10 @@ function buildGoalsSectionHtml(goalsConfig) {
   let topicIndex = 0;
   const addTopic = (label) => {
     const divider = topicIndex > 0 ? ' cal-goals-topic-divider' : '';
+    const bandCls =
+      topicIndex % 2 === 0 ? ' cal-goals-topic-head--band-a' : ' cal-goals-topic-head--band-b';
     topicIndex++;
-    h += `  <tr><td colspan="7" class="cal-goals-topic-head${divider}">${escapeHtml(label)}</td></tr>\n`;
+    h += `  <tr><td colspan="7" class="cal-goals-topic-head${bandCls}${divider}">${escapeHtml(label)}</td></tr>\n`;
     for (let i = 0; i < c.blankRowsPerTopic; i++) {
       h += '  <tr class="cal-goals-data-row">\n';
       for (let col = 0; col < 7; col++) {
@@ -550,19 +552,22 @@ export function modelToHtmlTableInline(model, extra = {}) {
   if (goalsConfig) {
     const gc = normalizeGoalsConfig(goalsConfig);
     if (gc.otherTopics.length > 0) {
-      const topicHeadBase = `text-align:left;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;${goalsFont}color:#0f172a;background:linear-gradient(90deg,#f8fafc 0%,#ffffff 100%);border-left:4px solid ${headerBg};`;
+      // Solid fill + HTML bgcolor — Google Sheets often drops CSS gradients on paste.
+      const topicHeadStyle = (fillHex) =>
+        `text-align:left;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;${goalsFont}color:#0f172a;background-color:${fillHex};border-left:4px solid ${headerBg};`;
 
       html += `<div style="padding:8px 6px 10px;box-sizing:border-box;width:${tw}px;max-width:100%;background:linear-gradient(180deg,rgba(15,23,42,0.06),transparent 55%);">\n`;
       html += `<table cellpadding="0" cellspacing="0" width="${tw}" style="border-collapse:separate;border-spacing:0;border:0;width:${tw}px;max-width:100%;table-layout:fixed;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,0.08);">\n`;
       html += colgroup;
       let topicIndex = 0;
       const addTopicInline = (label) => {
+        const fillHex = topicIndex % 2 === 0 ? bandA : bandB;
         const top =
           topicIndex > 0
             ? 'border-top:1px solid #cbd5e1;padding:10px 10px 8px 10px;'
             : 'padding:8px 10px;';
         topicIndex++;
-        html += `  <tr><td colspan="7" style="${top}${topicHeadBase}">${escapeHtml(label)}</td></tr>\n`;
+        html += `  <tr><td colspan="7" bgcolor="${fillHex}" style="${top}${topicHeadStyle(fillHex)}">${escapeHtml(label)}</td></tr>\n`;
         for (let i = 0; i < gc.blankRowsPerTopic; i++) {
           html += '  <tr>\n';
           for (let col = 0; col < 7; col++) {

@@ -321,9 +321,16 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.5rem 0.7rem !important;
-  background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
-  color: var(--text);
+  color: #0f172a;
   border-left: 4px solid var(--cal-header-bg);
+}
+
+.cal-goals-topic-head--band-a {
+  background: var(--cal-weekband-a) !important;
+}
+
+.cal-goals-topic-head--band-b {
+  background: var(--cal-weekband-b) !important;
 }
 
 .cal-goals-topic-head.cal-goals-topic-divider {
